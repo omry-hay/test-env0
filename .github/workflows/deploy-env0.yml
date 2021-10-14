@@ -15,14 +15,9 @@ jobs:
      - uses: actions/setup-node@v1
        with:
          node-version: '14'
-     - uses: actions/checkout@v2
-       with:
-         repository: env0/env0-client-integrations
      - name: install
-       working-directory: node
-       run: yarn
+       run: yarn global add @env0/cli
      - name: deploy
-       working-directory: node
        run: >
          env0 ${ACTION}
          --apiKey ${{ secrets.ENV0_API_KEY_ID }}
