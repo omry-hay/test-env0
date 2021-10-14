@@ -8,24 +8,25 @@ jobs:
    runs-on: ubuntu-20.04
    env:
      ACTION: deploy
+     ENV0_API_KEY: ${{ secrets.ENV0_API_KEY_ID }}
+     ENV0_API_SECRET: ${{ secrets.ENV0_API_KEY_SECRET }}
+     ENV0_ORGANIZATION_ID: ${{ secrets.ENV0_ORG_ID }}
+     ENV0_PROJECT_ID: ${{ secrets.ENV0_PROJECT_ID }}
+     ENV0_BLUEPRINT_ID: ${{ secrets.ENV0_BLUEPRINT_ID }}
+     ENV0_ENVIRONMENT_NAME: "pr-${{ github.event.number }}"
    steps:
-     - name: Set Action
-       if: github.event.action == 'closed'
-       run: echo "ACTION=destroy" >> $GITHUB_ENV
      - uses: actions/setup-node@v1
        with:
          node-version: '14'
      - name: install
        run: yarn global add @env0/cli
-     - name: deploy
+     - name: Destroy
+       if: github.event.action == 'closed'
+       run: env0 destroy --requiresApproval false
+     - name: Deploy
+       if: github.event.action != 'closed'
        run: >
-         env0 ${ACTION}
-         --apiKey ${{ secrets.ENV0_API_KEY_ID }}
-         --apiSecret ${{ secrets.ENV0_API_KEY_SECRET }}
-         --organizationId ${{ secrets.ENV0_ORG_ID }}
-         --projectId ${{ secrets.ENV0_PROJECT_ID }}
-         --blueprintId ${{ secrets.ENV0_BLUEPRINT_ID }}
-         --environmentName "${{ github.head_ref }}"
-         --workspaceName "${{ github.head_ref }}"
+         env0 deploy
+         --workspaceName ${ENV0_ENVIRONMENT_NAME}
          --revision "${{ github.head_ref }}"
          --requiresApproval false
